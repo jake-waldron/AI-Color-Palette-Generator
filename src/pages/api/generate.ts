@@ -16,7 +16,7 @@ const config = new Configuration({
 
 const openai = new OpenAIApi(config);
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 	console.log(req.method);
 
 	if (req.method !== 'POST') {
@@ -26,7 +26,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 	}
 	const { input } = req.body;
 	console.log(input);
-	const colors = generateColors(input);
+	const colors = await generateColors(input);
 	res.status(200).json(colors);
 }
 

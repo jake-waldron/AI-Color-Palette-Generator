@@ -38,7 +38,12 @@ async function generateColors(input: string) {
       {
         role: "user",
         // content: 'The top 10 best cities, and one sentence why, to live in America are: ',
-        content: `Generate a minimum of four, but up to eight, colors based on the input: "${input}". The colors should be in the format of hex codes. The descritpion should be a sentence that describes the color. Return a json object with the format of {colors: [{code: '#000000', description: "...."}]}`,
+        content: `
+				Generate a palette of colors based on the input: "${input}". 
+				Each color should have a color code and a description.
+				The colors should be in the format of hex codes. The descritpion should be a sentence that describes the color.
+				Return a json object with the format of {colors: [{code: '#000000', description: "...."}]}
+				`,
       },
     ],
     max_tokens: 1000,
@@ -64,6 +69,7 @@ function isJSON(str: string) {
   try {
     JSON.parse(str);
   } catch (e) {
+    console.log("NOT JSON");
     return false;
   }
   return true;

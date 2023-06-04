@@ -1,3 +1,4 @@
+import Head from "next/head";
 import { type } from "os";
 import { useEffect, useState } from "react";
 import { useQuery } from "react-query";
@@ -14,6 +15,7 @@ async function getColors(input: string) {
 }
 
 export default function Home() {
+  const [theme, setTheme] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [colors, setColors] = useState([]);
 
@@ -30,6 +32,7 @@ export default function Home() {
         setIsLoading(false);
         return alert(colors.description);
       }
+      setTheme(userInput as string);
       setColors(colors);
     } catch (err) {
       console.log(err);
@@ -40,8 +43,15 @@ export default function Home() {
 
   return (
     <main className="min-w-screen min-h-screen bg-gradient-to-br from-cyan-600 to-cyan-300">
+      <Head>
+        <title>AI Color Palette Generator</title>
+      </Head>
       <div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center ">
-        {isLoading ? <Loading /> : <UserInput handleSubmit={handleSubmit} />}
+        {isLoading ? (
+          <Loading />
+        ) : (
+          <UserInput handleSubmit={handleSubmit} currentTheme={theme} />
+        )}
       </div>
       {colors && <Background colors={colors} />}
     </main>
@@ -50,14 +60,16 @@ export default function Home() {
 
 function UserInput({
   handleSubmit,
+  currentTheme,
 }: {
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  currentTheme: string;
 }) {
   return (
     <form className={`z-50 mb-4 flex h-12`} onSubmit={handleSubmit}>
       <input
         type="text"
-        placeholder="Color Palette Theme"
+        placeholder={currentTheme ? currentTheme : "Color Palette Theme"}
         className={`h-12 rounded-l-lg border border-r-0 border-gray-300 bg-slate-50 p-2`}
         name="userInput"
       />
@@ -101,7 +113,7 @@ function ColorPanel({
 
   return (
     <div
-      className={`flex min-h-screen w-full flex-col items-center justify-end text-center 	hover:cursor-pointer `}
+      className={`flex min-h-screen w-full flex-col items-center justify-end text-center hover:cursor-pointer `}
       style={{ backgroundColor: color.code }}
       onClick={() => navigator.clipboard.writeText(color.code)}
       onMouseEnter={() => setIsHovering(true)}
@@ -109,12 +121,12 @@ function ColorPanel({
       title="Click to copy color code"
     >
       {isHovering && (
-        <div className="m-4 rounded-xl bg-slate-100 bg-opacity-50 p-4 text-slate-800">
+        <div className="text-shadow m-4  rounded-xl p-4 text-white">
           <p className="mx-4 py-4 text-xl drop-shadow-sm">
             {color.description}
           </p>
           <p className="justify-self-end py-4 text-2xl drop-shadow-sm">
-            {color.code}
+            {color.code.toUpperCase()}
           </p>
         </div>
       )}

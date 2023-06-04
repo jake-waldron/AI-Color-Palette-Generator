@@ -25,9 +25,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 		return;
 	}
 	const { input } = req.body;
+	if (!input) {
+		console.log('invalid input');
+		return res.status(400).json({ error: 'Invalid input' });
+	}
 	console.log(input);
 	const colors = await generateColors(input);
-	res.status(200).json(colors);
+	return res.status(200).json(colors);
 }
 
 async function generateColors(input: string) {
@@ -37,7 +41,7 @@ async function generateColors(input: string) {
 			{
 				role: 'user',
 				// content: 'The top 10 best cities, and one sentence why, to live in America are: ',
-				content: `Generate colors based on the input: "${input}". The colors should be in the format of hex codes. The descritpion should be a sentence that describes the color. Return a json object with the format of {colors: [{code: '#000000', description: "...."}]}`,
+				content: `Generate at least four colors based on the input: "${input}". The colors should be in the format of hex codes. The descritpion should be a sentence that describes the color. Return a json object with the format of {colors: [{code: '#000000', description: "...."}]}`,
 			},
 		],
 		max_tokens: 1000,

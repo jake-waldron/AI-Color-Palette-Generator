@@ -55,20 +55,20 @@ async function generateColors(input: string) {
   });
 
   const response = completion?.data?.choices[0]?.message?.content;
+  console.log(response);
   if (
     !response ||
-    !isJSON(response) ||
+    (!isJSON(response) && !isJSON(JSON.stringify(response))) ||
     response.startsWith("This is an innapropriate prompt. Please try again.")
   ) {
-    console.log(response);
     return {
       code: "ERROR",
       description: response,
     };
   }
 
-  const { colors } = JSON.parse(response);
-  console.log(colors);
+  const { colors } =
+    JSON.parse(response) || JSON.parse(JSON.stringify(response));
   return colors;
 }
 

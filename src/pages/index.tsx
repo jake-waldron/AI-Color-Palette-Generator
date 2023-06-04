@@ -28,7 +28,6 @@ export default function Home() {
     setIsLoading(true);
     try {
       const colors = await getColors(userInput as string);
-      console.log(colors);
       if (colors.code === "ERROR") {
         setColors([]);
         setIsLoading(false);
@@ -37,7 +36,6 @@ export default function Home() {
       setTheme(userInput as string);
       setColors(colors);
     } catch (err) {
-      console.log(err);
       alert(err);
     }
     setIsLoading(false);

@@ -1,6 +1,6 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
-import { Configuration, CreateChatCompletionResponse, OpenAIApi } from "openai";
+import { Configuration, OpenAIApi } from "openai";
 import "dotenv/config";
 
 const config = new Configuration({
@@ -28,7 +28,7 @@ export default async function handler(
   console.log(input);
   const colors = await generateColors(input);
 
-  return res.status(200).json(colors);
+  return res.status(200).json({ colors });
 }
 
 async function generateColors(input: string) {
@@ -37,12 +37,17 @@ async function generateColors(input: string) {
     messages: [
       {
         role: "user",
-        // content: 'The top 10 best cities, and one sentence why, to live in America are: ',
         content: `
 				Generate a palette of colors based on the input: "${input}". 
+				If it is an innapropriate prompt, return a message of "This is an innapropriate prompt. Please try again."
+
 				Each color should have a color code and a description.
-				The colors should be in the format of hex codes. The descritpion should be a sentence that describes the color.
-				Return a json object with the format of {colors: [{code: '#000000', description: "...."}]}
+				The colors should be in the format of hex codes. The descritpion should include an inventive name and a short sentence that describes the color.
+				Response Format: {
+					"colors": [
+						{"code": "#8B008B", "description": "Unicorn Mystery - a deep and intense shade of purple, associated with the darker elements of cyberpunk culture"}
+					]
+				}
 				`,
       },
     ],
@@ -53,11 +58,13 @@ async function generateColors(input: string) {
   if (
     !response ||
     !isJSON(response) ||
-    response.startsWith("As an AI langauge model,")
+    response.startsWith("This is an innapropriate prompt. Please try again.")
   ) {
     console.log(response);
-    console.log("invalid response");
-    return { code: "ERROR", description: response };
+    return {
+      code: "ERROR",
+      description: response,
+    };
   }
 
   const { colors } = JSON.parse(response);

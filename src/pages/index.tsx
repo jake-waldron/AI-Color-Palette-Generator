@@ -11,7 +11,9 @@ async function getColors(input: string) {
     },
     body: JSON.stringify({ input }),
   });
-  return res.json();
+  const data = await res.json();
+  const { colors } = data;
+  return colors;
 }
 
 export default function Home() {
@@ -110,11 +112,10 @@ function ColorPanel({
   color: { code: string; description: string };
 }) {
   const [isHovering, setIsHovering] = useState<boolean>(false);
-
   return (
     <div
-      className={`flex min-h-screen w-full flex-col items-center justify-end text-center hover:cursor-pointer `}
       style={{ backgroundColor: color.code }}
+      className={`flex min-h-screen w-full flex-col items-center justify-end text-center hover:cursor-pointer`}
       onClick={() => navigator.clipboard.writeText(color.code)}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}

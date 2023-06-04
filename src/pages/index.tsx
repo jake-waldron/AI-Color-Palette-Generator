@@ -1,39 +1,123 @@
-import { useState } from 'react';
+import { type } from "os";
+import { useEffect, useState } from "react";
+import { useQuery } from "react-query";
+
+async function getColors(input: string) {
+  const res = await fetch("/api/generate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ input }),
+  });
+  return res.json();
+}
 
 export default function Home() {
-	const [colors, setColors] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [colors, setColors] = useState([]);
 
-	async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-		e.preventDefault();
-		const formData = new FormData(e.currentTarget);
-		const userInput = formData.get('userInput');
-		try {
-			const res = await fetch('/api/generate', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({ input: userInput }),
-			});
-			const data = await res.json();
-			console.log(data);
-			// setColors(data);
-		} catch (err) {
-			console.log(err);
-		}
-	}
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const userInput = formData.get("userInput");
+    setIsLoading(true);
+    try {
+      const colors = await getColors(userInput as string);
+      console.log(colors);
+      if (colors.code === "ERROR") {
+        setColors([]);
+        setIsLoading(false);
+        return alert(colors.description);
+      }
+      setColors(colors);
+    } catch (err) {
+      console.log(err);
+      alert(err);
+    }
+    setIsLoading(false);
+  }
 
-	return (
-		<main className={`flex min-h-screen flex-col items-center justify-center`}>
-			<form className={`flex h-12 z-50`} onSubmit={handleSubmit}>
-				<input
-					type='text'
-					placeholder='Color Palette Theme'
-					className={`h-12 p-2 border border-gray-300 rounded-l-lg border-r-0`}
-					name='userInput'
-				/>
-				<button className='bg-lime-200 h-full rounded-r-lg p-2'>Generate</button>
-			</form>
-		</main>
-	);
+  return (
+    <main className="min-w-screen min-h-screen bg-gradient-to-br from-cyan-600 to-cyan-300">
+      <div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center ">
+        {isLoading ? <Loading /> : <UserInput handleSubmit={handleSubmit} />}
+      </div>
+      {colors && <Background colors={colors} />}
+    </main>
+  );
+}
+
+function UserInput({
+  handleSubmit,
+}: {
+  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+}) {
+  return (
+    <form className={`z-50 mb-4 flex h-12`} onSubmit={handleSubmit}>
+      <input
+        type="text"
+        placeholder="Color Palette Theme"
+        className={`h-12 rounded-l-lg border border-r-0 border-gray-300 bg-slate-50 p-2`}
+        name="userInput"
+      />
+      <button className="h-full rounded-r-lg bg-lime-200 p-2 disabled:opacity-50">
+        Generate
+      </button>
+    </form>
+  );
+}
+
+function Loading() {
+  return (
+    <div className={`rounded-xl bg-slate-50`}>
+      <p className="p-4 ">Generating Color Palette...</p>
+    </div>
+  );
+}
+
+function Background({
+  colors,
+}: {
+  colors: { code: string; description: string }[];
+}) {
+  return (
+    <div
+      className={`z-0 flex min-h-full min-w-full items-center justify-center`}
+    >
+      {colors.map((color) => (
+        <ColorPanel color={color} key={color.code} />
+      ))}
+    </div>
+  );
+}
+
+function ColorPanel({
+  color,
+}: {
+  color: { code: string; description: string };
+}) {
+  const [isHovering, setIsHovering] = useState<boolean>(false);
+
+  return (
+    <div
+      className={`flex min-h-screen w-full flex-col items-center justify-end text-center 	hover:cursor-pointer `}
+      style={{ backgroundColor: color.code }}
+      onClick={() => navigator.clipboard.writeText(color.code)}
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+      title="Click to copy color code"
+    >
+      {isHovering && (
+        <div className="m-4 rounded-xl bg-slate-100 bg-opacity-50 p-4 text-slate-800">
+          <p className="mx-4 py-4 text-xl drop-shadow-sm">
+            {color.description}
+          </p>
+          <p className="justify-self-end py-4 text-2xl drop-shadow-sm">
+            {color.code}
+          </p>
+        </div>
+      )}
+    </div>
+  );
 }

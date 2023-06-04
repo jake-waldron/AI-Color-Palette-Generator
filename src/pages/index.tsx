@@ -1,7 +1,5 @@
 import Head from "next/head";
-import { type } from "os";
-import { useEffect, useState } from "react";
-import { useQuery } from "react-query";
+import { useState } from "react";
 
 async function getColors(input: string) {
   const res = await fetch("/api/generate", {

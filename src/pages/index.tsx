@@ -10,6 +10,12 @@ async function getColors(input: string) {
     body: JSON.stringify({ input }),
   });
   const data = await res.json();
+  console.log(res.status);
+  console.log(data);
+  if (res.status !== 200) throw new Error(data.error || "Something went wrong");
+
+  if (data.code === "ERROR") throw new Error(data.description);
+
   const { colors } = data;
   return colors;
 }
@@ -26,14 +32,10 @@ export default function Home() {
     setIsLoading(true);
     try {
       const colors = await getColors(userInput as string);
-      if (colors.code === "ERROR") {
-        setColors([]);
-        setIsLoading(false);
-        return alert(colors.description);
-      }
       setTheme(userInput as string);
       setColors(colors);
     } catch (err) {
+      setColors([]);
       alert(err);
     }
     setIsLoading(false);

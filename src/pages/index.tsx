@@ -1,5 +1,6 @@
 import Head from "next/head";
 import { useState } from "react";
+import { ImSpinner6 } from "react-icons/im";
 
 async function getColors(input: string) {
   const res = await fetch("/api/generate", {
@@ -82,8 +83,9 @@ function UserInput({
 
 function Loading() {
   return (
-    <div className={`rounded-xl bg-slate-50`}>
-      <p className="p-4 ">Generating Color Palette...</p>
+    <div className={`align-center flex rounded-xl bg-slate-50 p-4`}>
+      <ImSpinner6 className="animate-spin text-2xl" />
+      <p className="ml-2  ">Generating Color Palette</p>
     </div>
   );
 }

@@ -70,14 +70,19 @@ async function generateColors(input: string) {
   }
 
   // this feels hacky, but it seems to work if the response isn't formatted correctly
-  const colors = JSON.parse(response) || JSON.parse(JSON.stringify(response));
-
-  if (colors.length === 0) {
+  try {
+    const colors = JSON.parse(response) || JSON.parse(JSON.stringify(response));
+    if (colors.length === 0) {
+      return {
+        code: "ERROR",
+        description: response,
+      };
+    }
+    return colors;
+  } catch (e) {
     return {
       code: "ERROR",
       description: response,
     };
   }
-
-  return colors;
 }
